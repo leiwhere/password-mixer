@@ -1,12 +1,12 @@
-Antiy Password Mixer��APM�� �ǰ���ʵ������Ե�ǰ�ѿ�Ȱ�ȫ��в������һ�װ�ȫ�㷨Ӧ�÷���������������С��ģ��BBS��SNS�����԰塢��ҳ��Ϸ�ȳ�����WEBӦ�ã��Լ���������ͨ����ҳ�����û�ע�ᡢ��֤�������������վӦ�ó�����APM����WEBӦ�õĹ滮��������ά����ʹ�ã����Խ��WEB��̨�����������֤�͹ؼ���Ϣ���ܱ�������� 
+Antiy Password Mixer（APM） 是安天实验室针对当前脱库等安全威胁发布的一套安全算法应用范例。其适用于中小规模的BBS、SNS、留言板、网页游戏等常见的WEB应用，以及其他可能通过网页进行用户注册、认证与密码管理的网站应用场景。APM面向WEB应用的规划、开发和维护者使用，可以解决WEB后台大多数身份认证和关键信息加密保存的需求。 
 
-APM����GPL 2.0Э�鷢����
+APM基于GPL 2.0协议发布。
 
-APM����ַ�ǣ�
+APM的网址是：
 http://code.google.com/p/password-mixer/
 
-����ʵ������վ��
+安天实验室网站：
 http://www.antiy.com/
 
-��ϵ���ǣ�
+联系我们：
 Email: apm@antiy.com
