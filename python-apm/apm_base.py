@@ -34,7 +34,7 @@ def apm_calc_sha256(user, salt, password):
 def apm_enc_data(keyfile, data):
 	try:
         	key   = M2Crypto.RSA.load_pub_key(keyfile)
-        	cdata = key.public_encrypt(data, M2Crypto.RSA.pkcs1_padding)
+          	cdata = key.public_encrypt(data, M2Crypto.RSA.pkcs1_padding)
         	return base64.encodestring(cdata)
         except:
         	return ""

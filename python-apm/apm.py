@@ -22,7 +22,38 @@ from apm_config import *
 db = DB()
 opendb_flag = db.open(g_apm_db_name, DB.OWRITER | DB.OCREATE)
 
+g_frequently_used_pwd = {}
 
+def apm_load_pwd_list(password_list_file, flag):
+	if flag != 1:
+		return 0
+		
+	try:
+		fd = open(password_list_file)
+		for line in fd.readlines():
+			if not g_frequently_used_pwd.has_key(line):
+				g_frequently_used_pwd[line.strip()] = 1
+		fd.close()
+	except:
+		return -1
+		
+	return 0
+
+apm_load_pwd_list(g_apm_pwd_name, g_apm_check_frequently_used_pwd)
+	
+def apm_check_pwd(user, password, flag):
+	if flag == 1:
+		# it's a frequently used password
+		if g_frequently_used_pwd.has_key(password):
+			return -1
+		# it's a pure digital password
+		if password.isdigit():
+			return -2
+		# passowrd contain the user
+		if password.find(user) > -1 and (len(password) - len(user)) < 3:
+			return -3		
+	return 0
+	
 def apm_register_user(user, password, ext_info):
 	if not opendb_flag:
 		return -1
@@ -32,6 +63,9 @@ def apm_register_user(user, password, ext_info):
 		
 	if db.get(user):
 		return -3
+		
+	if apm_check_pwd(user, password, g_apm_check_frequently_used_pwd) != 0:
+		return -7
 	
 	salt         = apm_gen_salt()
 	pwd_hash     = apm_calc_sha256(user, salt, password)
@@ -66,6 +100,9 @@ def apm_change_pwd(user, oldpwd, newpassword):
 		
 	if apm_authenticate_user(user, oldpwd) != 0:
 		return -3
+		
+	if apm_check_pwd(user, newpassword, g_apm_check_frequently_used_pwd) != 0:	
+		return -7
 		
 	value         = db.get(user)
 	field_list    = value.split(',')
@@ -143,7 +180,7 @@ def apm_set_user_validity(user, validity):
 	pwd_enc         = field_list[2]
 	ext_info_enc    = field_list[3]
 	change_validity = field_list[4]
-	change_validity = validity
+	change_validity = str(validity)
 	
 	value = salt + ',' + pwd_hash + ',' + pwd_enc + ',' + ext_info_enc + ',' + change_validity
 	if not db.set(user, value):

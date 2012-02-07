@@ -18,6 +18,9 @@
 # user info database path
 g_apm_db_path        = "/opt/AntiyPasswordMixer/database/"
 g_apm_db_name        = g_apm_db_path + "userinfo.kch"
+# frequently used password list path
+g_apm_pwd_path        = "/opt/AntiyPasswordMixer/database/"
+g_apm_pwd_name        = g_apm_db_path + "pwd.lst"
 # public key path
 g_apm_pub_key_path   = "/opt/AntiyPasswordMixer/keys/"
 g_apm_pub_key        = g_apm_pub_key_path + "pubkey.pem"
@@ -25,3 +28,7 @@ g_apm_pub_key        = g_apm_pub_key_path + "pubkey.pem"
 # if set 0 donn't save original password
 # if set 1 save original password
 g_apm_register_type  = 0
+
+#if set 0 donn't check frequently used password by list
+#if set 1 check check frequently used password by list
+g_apm_check_frequently_used_pwd = 0
