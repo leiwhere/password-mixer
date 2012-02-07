@@ -52,6 +52,11 @@ function apm_demo_register_user_test($user, $password, $ext_info)
 	{
 		print "apm_demo_register_user_test: save user information error!\n";
 	}
+	
+	if($ret == -7)
+	{
+		print "apm_demo_register_user_test: it's a frequently used password!\n";
+	}
 }
 
 function apm_demo_change_pwd_test($user, $oldpwd, $newpassword)
@@ -141,6 +146,11 @@ apm_demo_register_user_test("testuser", "passwordtest", "");
 
 # test register user and alreadly register
 apm_demo_register_user_test("testuser", "passwordtest", "");
+
+# test register user and it's a frequently used password, g_apm_check_frequently_used_pwd must set 1
+apm_demo_register_user_test("testuser1", "iloveyou", "");
+apm_demo_register_user_test("testuser1", "19820502", "");
+apm_demo_register_user_test("testuser1", "atestuser1", "");
 
 # test change password
 apm_demo_change_pwd_test("testuser", "passwordtest", "passwordtest1");

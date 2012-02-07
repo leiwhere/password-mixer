@@ -21,10 +21,80 @@ include_once("./apm_base.php");
 global $g_apm_db_name;
 $dbh = dba_open($g_apm_db_name, "c");
 
+$g_frequently_used_pwd = array();
+
+function apm_load_pwd_list($password_list_file, $flag)
+{
+	global $g_frequently_used_pwd;
+	
+	if($flag != 1)
+	{
+		return 0;
+	}
+	
+	if(!file_exists($password_list_file))
+	{
+		return -1;
+	}
+	
+	$fd = fopen($password_list_file, "rt");
+	
+	if(!$fd)
+	{
+		return -2;
+	}
+	
+	while(!feof($fd))
+	{
+		$line = fgets($fd);
+		if(!$line)
+		{
+			break;
+		}
+		$line = str_replace("\n", "", $line);
+		$line = str_replace("\r", "", $line);
+		array_push($g_frequently_used_pwd, $line);
+	}
+	fclose($fd);
+	return 0;
+}
+
+global $g_apm_pwd_name;
+global $g_apm_check_frequently_used_pwd;
+apm_load_pwd_list($g_apm_pwd_name, $g_apm_check_frequently_used_pwd);
+	
+function apm_check_pwd($user, $password, $flag)
+{
+	global $g_frequently_used_pwd;
+	if ($flag == 1)
+	{
+		//it's a frequently used password
+		if(in_array($password,$g_frequently_used_pwd))
+		{
+			return -1;
+		}
+		
+		// it's a pure digital password
+		if(is_numeric($password))
+		{
+			return -2;
+		}
+		
+		// passowrd contain the user
+		$ret = strpos($password, $user);
+		if($ret !== False && (strlen($password) - strlen($user)) < 3)
+		{
+			return -3;
+		}		
+	}
+	return 0;
+}
+
 function apm_register_user($user, $password, $ext_info)
 {
 	global $dbh;
 	global $g_apm_register_type;
+	global $g_apm_check_frequently_used_pwd;
 
 	if(!$dbh)
 	{
@@ -41,6 +111,10 @@ function apm_register_user($user, $password, $ext_info)
 		return -3;
 	}
 	
+	if( apm_check_pwd($user, $password, $g_apm_check_frequently_used_pwd) != 0)
+	{
+		return -7;
+	}
 	
 	$salt         = apm_gen_salt();
 	$pwd_hash     = apm_calc_sha256($user, $salt, $password);
@@ -80,6 +154,8 @@ function apm_change_pwd($user, $oldpwd, $newpassword)
 	global $dbh;
 	global $g_apm_register_type;
 	global $g_apm_pub_key;
+	global $g_apm_check_frequently_used_pwd;
+	
 	if(!$dbh)
 	{
 		return -1;
@@ -91,6 +167,11 @@ function apm_change_pwd($user, $oldpwd, $newpassword)
 	if(apm_authenticate_user($user, $oldpwd) != 0)
 	{
 		return -3;
+	}
+	
+	if( apm_check_pwd($user, $newpassword, $g_apm_check_frequently_used_pwd) != 0)
+	{
+		return -7;
 	}
 	
 	$value         = dba_fetch($user, $dbh);
