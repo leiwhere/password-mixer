@@ -23,6 +23,50 @@ include KyotoCabinet
 $db = DB::new
 $opendb_flag = $db.open($g_apm_db_name, DB::OWRITER | DB::OCREATE)
 
+$g_frequently_used_pwd = {}
+def apm_load_pwd_list(password_list_file, flag)
+	if flag != 1
+		return 0
+	end
+		
+	begin
+		fd = File.new(password_list_file)
+		for line in fd.readlines()
+			if $g_frequently_used_pwd[line.strip()] == nil
+				$g_frequently_used_pwd[line.strip()] = 1
+			end
+		end
+		fd.close()
+	rescue
+		return -1
+	end
+		
+	return 0
+end
+
+apm_load_pwd_list($g_apm_pwd_name, $g_apm_check_frequently_used_pwd)
+
+def apm_check_pwd(user, password, flag)
+	if flag == 1
+		# it's a frequently used password
+		if $g_frequently_used_pwd[password] != nil
+			return -1
+		end
+		
+		# it's a pure digital password
+		tmp = password.scan(/\d+/)
+		if tmp.size() > 0 and tmp[0].size() == password.size()
+			return -2
+		end
+		
+		# passowrd contain the user
+		if password.include?(user) and (password.size() - user.size()) < 3
+			return -3		
+		end
+	end
+	return 0
+end
+
 def apm_register_user(user, password, ext_info)
 	unless $opendb_flag
 		return -1
@@ -36,6 +80,10 @@ def apm_register_user(user, password, ext_info)
 		return -3
 	end
 	
+	if apm_check_pwd(user, password, $g_apm_check_frequently_used_pwd) != 0
+		return -7
+	end
+		
 	salt         = apm_gen_salt()
 	pwd_hash     = apm_calc_sha256(user, salt, password)
 	pwd_enc      = ""
@@ -75,6 +123,10 @@ def apm_change_pwd(user, oldpwd, newpassword)
 		
 	if apm_authenticate_user(user, oldpwd) != 0
 		return -3
+	end
+	
+	if apm_check_pwd(user, newpassword, $g_apm_check_frequently_used_pwd) != 0
+		return -7
 	end
 		
 	value         = $db.get(user)
