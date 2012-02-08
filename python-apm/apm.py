@@ -31,7 +31,7 @@ def apm_load_pwd_list(password_list_file, flag):
 	try:
 		fd = open(password_list_file)
 		for line in fd.readlines():
-			if not g_frequently_used_pwd.has_key(line):
+			if not g_frequently_used_pwd.has_key(line.strip()):
 				g_frequently_used_pwd[line.strip()] = 1
 		fd.close()
 	except:
